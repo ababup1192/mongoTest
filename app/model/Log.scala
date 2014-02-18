@@ -8,6 +8,7 @@ import play.api.Play.current
 import se.radley.plugin.salat._
 
 import customContext._
+import com.mongodb.casbah.commons.MongoDBObject
 
 abstract class Log(
                     val id: ObjectId = new ObjectId,
@@ -18,6 +19,10 @@ abstract class Log(
 
 trait LogDAO extends ModelCompanion[Log, ObjectId] {
   def collection = mongoCollection("Logs")
+
+  def findLatestLog(): List[Log] =
+    Log.find(MongoDBObject()).sort(orderBy = MongoDBObject("_id" -> -1)).toList
+
 
   val dao = new SalatDAO[Log, ObjectId](collection) {}
 }
@@ -36,9 +41,9 @@ trait ErrorLogDAO extends ModelCompanion[ErrorLog, ObjectId] {
 
   val dao = new SalatDAO[ErrorLog, ObjectId](collection) {}
 
-  def findErrorLog(): List[Log] =
-    Log.find(MongoDBObject()).filter {
-      case l@ErrorLog(_, _, _, _) => true
+  def findLatestErrorLog(): List[Log] =
+    Log.find(MongoDBObject()).sort(orderBy = MongoDBObject("_id" -> -1)).filter {
+      case ErrorLog(_, _, _, _) => true
       case _ => false
     }.toList
 }
@@ -56,6 +61,13 @@ trait EventLogDAO extends ModelCompanion[EventLog, ObjectId] {
   def collection = mongoCollection("Logs")
 
   val dao = new SalatDAO[EventLog, ObjectId](collection) {}
+
+  def findLatestEventLog(): List[Log] =
+    Log.find(MongoDBObject()).sort(orderBy = MongoDBObject("_id" -> -1)).filter {
+      case EventLog(_, _, _, _) => true
+      case _ => false
+    }.toList
+
 }
 
 object EventLog extends EventLogDAO

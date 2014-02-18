@@ -3,9 +3,7 @@ package controllers
 import play.api._
 import play.api.mvc._
 import model._
-import se.radley.plugin.salat.Binders.ObjectId
 import com.mongodb.casbah.commons.MongoDBObject
-
 object Application extends Controller {
 
   def index = Action {
@@ -46,7 +44,16 @@ object Application extends Controller {
     EventLog.insert(EventLog(title = "event log1", content = "content1"))
     EventLog.insert(EventLog(title = "event log2", content = "content2"))
 
-    ErrorLog.findErrorLog().foreach {
+
+    println("ALL Log")
+    println(Log.findLatestLog())
+    println("Error Log")
+    println(ErrorLog.findLatestErrorLog())
+    println("Event Log")
+    println(EventLog.findLatestEventLog())
+
+    println("Error Log List")
+    ErrorLog.findLatestErrorLog().foreach {
       el => println(el)
     }
 
