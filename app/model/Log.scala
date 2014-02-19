@@ -20,9 +20,15 @@ abstract class Log(
 trait LogDAO extends ModelCompanion[Log, ObjectId] {
   def collection = mongoCollection("Logs")
 
+  val dao = new SalatDAO[Log, ObjectId](collection) {}
   def findLatestLog(): List[Log] =
     Log.find(MongoDBObject()).sort(orderBy = MongoDBObject("_id" -> -1)).toList
 
+}
+
+trait LogFunc{
+
+  def collection = mongoCollection("Logs")
 
   val dao = new SalatDAO[Log, ObjectId](collection) {}
 }
@@ -43,7 +49,7 @@ trait ErrorLogDAO extends ModelCompanion[ErrorLog, ObjectId] {
 
   def findLatestErrorLog(): List[Log] =
     Log.find(MongoDBObject()).sort(orderBy = MongoDBObject("_id" -> -1)).filter {
-      case ErrorLog(_, _, _, _) => true
+      case _: ErrorLog => true
       case _ => false
     }.toList
 }
@@ -64,7 +70,7 @@ trait EventLogDAO extends ModelCompanion[EventLog, ObjectId] {
 
   def findLatestEventLog(): List[Log] =
     Log.find(MongoDBObject()).sort(orderBy = MongoDBObject("_id" -> -1)).filter {
-      case EventLog(_, _, _, _) => true
+      case _: EventLog => true
       case _ => false
     }.toList
 
